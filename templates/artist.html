@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>{{ .Artist.Name }}</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>{{ .Artist.Name }}</h1>
+
+</header>
+
+<main class="container">
+
+<img src="{{ .Artist.Image }}" alt="{{ .Artist.Name }}">
+
+<p>
+
+<strong>Creation Year:</strong>
+
+{{ .Artist.CreationDate }}
+
+</p>
+
+<p>
+
+<strong>First Album:</strong>
+
+{{ .Artist.FirstAlbum }}
+
+</p>
+
+<h2>Members</h2>
+
+<ul>
+
+{{ range .Artist.Members }}
+
+<li>{{ . }}</li>
+
+{{ end }}
+
+</ul>
+
+<h2>Locations</h2>
+
+<ul>
+
+{{ range .Location.Locations }}
+
+<li>{{ . }}</li>
+
+{{ end }}
+
+</ul>
+
+<h2>Concert Dates</h2>
+
+<ul>
+
+{{ range .Date.Dates }}
+
+<li>{{ . }}</li>
+
+{{ end }}
+
+</ul>
+
+<h2>Relations</h2>
+
+<ul>
+
+{{ range $location, $dates := .Relation.DatesLocations }}
+
+<li>
+
+<strong>{{ $location }}</strong>
+
+<ul>
+
+{{ range $dates }}
+
+<li>{{ . }}</li>
+
+{{ end }}
+
+</ul>
+
+</li>
+
+{{ end }}
+
+</ul>
+
+<p>
+
+<a class="button" href="/">← Back Home</a>
+
+</p>
+
+</main>
+
+</body>
+
+</html>

@@ -24,20 +24,18 @@ func fetchJSON(url string, target interface{}) error {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(target)
-	if err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(target); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// GetArtists fetches all artists from the API.
+// GetArtists fetches all artists.
 func GetArtists() ([]models.Artist, error) {
 	var artists []models.Artist
 
-	err := fetchJSON(baseURL+"/artists", &artists)
-	if err != nil {
+	if err := fetchJSON(baseURL+"/artists", &artists); err != nil {
 		return nil, err
 	}
 
@@ -46,36 +44,33 @@ func GetArtists() ([]models.Artist, error) {
 
 // GetLocations fetches all artist locations.
 func GetLocations() ([]models.Location, error) {
-	var locations []models.Location
+	var response models.LocationsResponse
 
-	err := fetchJSON(baseURL+"/locations", &locations)
-	if err != nil {
+	if err := fetchJSON(baseURL+"/locations", &response); err != nil {
 		return nil, err
 	}
 
-	return locations, nil
+	return response.Index, nil
 }
 
 // GetDates fetches all concert dates.
 func GetDates() ([]models.Date, error) {
-	var dates []models.Date
+	var response models.DatesResponse
 
-	err := fetchJSON(baseURL+"/dates", &dates)
-	if err != nil {
+	if err := fetchJSON(baseURL+"/dates", &response); err != nil {
 		return nil, err
 	}
 
-	return dates, nil
+	return response.Index, nil
 }
 
 // GetRelations fetches all artist relations.
 func GetRelations() ([]models.Relation, error) {
-	var relations []models.Relation
+	var response models.RelationsResponse
 
-	err := fetchJSON(baseURL+"/relation", &relations)
-	if err != nil {
+	if err := fetchJSON(baseURL+"/relation", &response); err != nil {
 		return nil, err
 	}
 
-	return relations, nil
+	return response.Index, nil
 }

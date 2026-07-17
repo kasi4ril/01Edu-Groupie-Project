@@ -1,30 +1,28 @@
 package main
 
 import (
+	"log"
+	"net/http"
 
+	"01Edu-Groupie-Project/handlers"
 )
 
-func main(){
+func main() {
+	// Create router
+	mux := http.NewServeMux()
 
-	mux := http.NewServeMux() //Creating router
-
-	//Registering handlers
-	mux.HandleFunc("/", handlers.HomeHandler)
-	mux.HandleFunc("/artists/", handlers.ArtistHandler)
-
-	//Telling the system where our static files are
+	// Serve static files
 	fs := http.FileServer(http.Dir("./static"))
-	mux.Handle("/static/", http.StripPrefix("/static",fs)),
+	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
-		fmt.Println("Server running ....")
+	// Register routes
+	mux.HandleFunc("/", handlers.HomeHandler)
+	mux.HandleFunc("/artist", handlers.ArtistHandler)
 
-	//Starting the server
-	err := http.ListenAndServe(":8080", mux)
-	if err != nil {
+	log.Println("Server running on http://localhost:8080")
+
+	// Start server
+	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatal(err)
-		http.Errorf("InternalServerError")
 	}
 }
-
-//main here basically, create server router (mux), tells where to
-//locate static files, called handlers and starts the server.
