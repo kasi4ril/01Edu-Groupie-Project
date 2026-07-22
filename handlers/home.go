@@ -63,11 +63,9 @@ func buildFilter(r *http.Request) models.Filter {
 	// Locations
 	// -------------------------------
 
-	location := r.URL.Query().Get("location")
+	locations := r.URL.Query()["location"]
 
-	if location != "" {
-		filter.Locations = append(filter.Locations, location)
-	}
+	filter.Locations = append(filter.Locations, locations...)
 
 	return filter
 }
@@ -87,27 +85,40 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	// Build filter from query parameters
 	filter := buildFilter(r)
 
-	// Print filter to terminal (for testing)
+	// ----------------------------------------
+	// Auto-correct invalid ranges
+	// ----------------------------------------
+
+	// Creation year
+	if filter.CreationFrom > filter.CreationTo &&
+		filter.CreationTo != 0 {
+
+		filter.CreationFrom, filter.CreationTo =
+			filter.CreationTo, filter.CreationFrom
+	}
+
+	// Album year
+	if filter.AlbumFrom > filter.AlbumTo &&
+		filter.AlbumTo != 0 {
+
+		filter.AlbumFrom, filter.AlbumTo =
+			filter.AlbumTo, filter.AlbumFrom
+	}
+
 	log.Printf("Current Filter: %+v\n", filter)
 
-	// Fetch all artists
+	// ----------------------------------------
+	// Fetch data
+	// ----------------------------------------
+
 	artists, err := services.GetArtists()
 	if err != nil {
 		InternalServerError(w)
 		return
 	}
 
-	// Apply creation year filter
-	artists = services.FilterCreation(artists, filter)
-	artists = services.FilterAlbum(artists, filter)
-	artists = services.FilterMembers(artists, filter)
-
-	// Filtering will be added in the next step
-
-	if err := RenderTemplate(w, "index.html", artists); err != nil {
-		InternalServerError(w)
-		return
-	}
+	// Save a copy BEFORE filtering
+	allArtists := artists
 
 	locations, err := services.GetLocations()
 	if err != nil {
@@ -115,8 +126,29 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ----------------------------------------
+	// Apply filters
+	// ----------------------------------------
+
 	artists = services.FilterCreation(artists, filter)
 	artists = services.FilterAlbum(artists, filter)
 	artists = services.FilterMembers(artists, filter)
 	artists = services.FilterLocations(artists, locations, filter)
+
+	// ----------------------------------------
+	// Build page
+	// ----------------------------------------
+
+	page := models.HomePage{
+		Artists:       artists,
+		Locations:     services.GetUniqueLocations(locations),
+		CreationYears: services.GetCreationYears(allArtists),
+		AlbumYears:    services.GetAlbumYears(allArtists),
+		Filter:        filter,
+	}
+
+	if err := RenderTemplate(w, "index.html", page); err != nil {
+		InternalServerError(w)
+		return
+	}
 }

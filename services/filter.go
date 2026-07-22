@@ -1,16 +1,17 @@
 package services
 
 import (
-	"01Edu-Groupie-Project/models"
+	"sort"
 	"strconv"
 	"strings"
+
+	"01Edu-Groupie-Project/models"
 )
 
 // FilterCreation filters artists by creation year.
 func FilterCreation(artists []models.Artist, filter models.Filter) []models.Artist {
 
-	// If no creation year filter is selected,
-	// return all artists.
+	// No creation filter selected
 	if filter.CreationFrom == 0 && filter.CreationTo == 0 {
 		return artists
 	}
@@ -21,12 +22,10 @@ func FilterCreation(artists []models.Artist, filter models.Filter) []models.Arti
 
 		year := artist.CreationDate
 
-		// Check minimum year
 		if filter.CreationFrom != 0 && year < filter.CreationFrom {
 			continue
 		}
 
-		// Check maximum year
 		if filter.CreationTo != 0 && year > filter.CreationTo {
 			continue
 		}
@@ -40,7 +39,7 @@ func FilterCreation(artists []models.Artist, filter models.Filter) []models.Arti
 // FilterAlbum filters artists by first album year.
 func FilterAlbum(artists []models.Artist, filter models.Filter) []models.Artist {
 
-	// No filter selected
+	// No album filter selected
 	if filter.AlbumFrom == 0 && filter.AlbumTo == 0 {
 		return artists
 	}
@@ -108,7 +107,7 @@ func FilterLocations(
 	filter models.Filter,
 ) []models.Artist {
 
-	// No location selected
+	// No location filter selected
 	if len(filter.Locations) == 0 {
 		return artists
 	}
@@ -117,7 +116,7 @@ func FilterLocations(
 
 	for _, artist := range artists {
 
-		// Find this artist's locations
+		// Find the matching location record for this artist
 		for _, loc := range locations {
 
 			if loc.ID != artist.ID {
@@ -126,13 +125,15 @@ func FilterLocations(
 
 			found := false
 
-			// Compare every artist location
+			// Compare artist locations with selected locations
 			for _, artistLocation := range loc.Locations {
 
-				// Compare with every selected location
 				for _, selected := range filter.Locations {
 
-					if artistLocation == selected {
+					if strings.Contains(
+						strings.ToLower(artistLocation),
+						strings.ToLower(selected),
+					) {
 						found = true
 						break
 					}
@@ -147,9 +148,83 @@ func FilterLocations(
 				filtered = append(filtered, artist)
 			}
 
+			// Only one Location record exists per artist
 			break
 		}
 	}
 
 	return filtered
+}
+
+// GetUniqueLocations returns all unique concert locations.
+func GetUniqueLocations(locations []models.Location) []string {
+
+	unique := make(map[string]bool)
+
+	for _, loc := range locations {
+		for _, city := range loc.Locations {
+			unique[city] = true
+		}
+	}
+
+	var result []string
+
+	for city := range unique {
+		result = append(result, city)
+	}
+
+	sort.Strings(result)
+
+	return result
+}
+// GetCreationYears returns all unique creation years.
+func GetCreationYears(artists []models.Artist) []int {
+
+	unique := make(map[int]bool)
+
+	for _, artist := range artists {
+		unique[artist.CreationDate] = true
+	}
+
+	var years []int
+
+	for year := range unique {
+		years = append(years, year)
+	}
+
+	sort.Ints(years)
+
+	return years
+}
+
+// GetAlbumYears returns all unique album years.
+func GetAlbumYears(artists []models.Artist) []int {
+
+	unique := make(map[int]bool)
+
+	for _, artist := range artists {
+
+		parts := strings.Split(artist.FirstAlbum, "-")
+
+		if len(parts) != 3 {
+			continue
+		}
+
+		year, err := strconv.Atoi(parts[2])
+		if err != nil {
+			continue
+		}
+
+		unique[year] = true
+	}
+
+	var years []int
+
+	for year := range unique {
+		years = append(years, year)
+	}
+
+	sort.Ints(years)
+
+	return years
 }

@@ -40,3 +40,46 @@ img {
 .button:hover {
     background: #555;
 }
+
+.filter-form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.location-box {
+    height: 180px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background: #fafafa;
+}
+
+fieldset {
+    margin-bottom: 15px;
+}
+
+fieldset label {
+    display: block;
+    margin: 3px 0;
+}
+
+.filter-form select {
+    padding: 6px;
+    margin: 5px;
+    min-width: 100px;
+}
+
+.filter-form input[type="number"] {
+    padding: 6px;
+}
+
+.filter-form fieldset {
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.filter-form legend {
+    font-weight: bold;
+}

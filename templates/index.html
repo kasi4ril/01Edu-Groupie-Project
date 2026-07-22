@@ -14,30 +14,48 @@
 
 <main class="container">
 
-    <form action="/" method="GET" class="filter-form">
+   <form action="/" method="GET" class="filter-form">
 
     <fieldset>
-        <legend><strong>Creation Year</strong></legend>
+    <legend><strong>Creation Year</strong></legend>
 
-        From:
-        <input type="number" name="creationFrom">
+    From:
+    <select name="creationFrom">
+        <option value="">Any</option>
+        {{ range .CreationYears }}
+        <option value="{{ . }}">{{ . }}</option>
+        {{ end }}
+    </select>
 
-        To:
-        <input type="number" name="creationTo">
-    </fieldset>
+    To:
+    <select name="creationTo">
+        <option value="">Any</option>
+        {{ range .CreationYears }}
+        <option value="{{ . }}">{{ . }}</option>
+        {{ end }}
+    </select>
 
     <br>
 
     <fieldset>
-        <legend><strong>First Album Year</strong></legend>
+    <legend><strong>First Album Year</strong></legend>
 
-        From:
-        <input type="number" name="albumFrom">
+    From:
+    <select name="albumFrom">
+        <option value="">Any</option>
+        {{ range .AlbumYears }}
+        <option value="{{ . }}">{{ . }}</option>
+        {{ end }}
+    </select>
 
-        To:
-        <input type="number" name="albumTo">
-    </fieldset>
-
+    To:
+    <select name="albumTo">
+        <option value="">Any</option>
+        {{ range .AlbumYears }}
+        <option value="{{ . }}">{{ . }}</option>
+        {{ end }}
+    </select>
+</fieldset>
     <br>
 
     <fieldset>
@@ -56,15 +74,25 @@
     <br>
 
     <fieldset>
-        <legend><strong>Locations</strong></legend>
+        <legend><strong>Concert Locations</strong></legend>
 
-        <!-- We'll improve this later with dynamic locations -->
-        <input type="text" name="location" placeholder="Enter location">
+        <div class="location-box">
+
+            {{ range .Locations }}
+            <label>
+                <input type="checkbox" name="location" value="{{ . }}">
+                {{ . }}
+            </label>
+            <br>
+            {{ end }}
+
+        </div>
+
     </fieldset>
 
     <br>
 
-    <button type="submit">
+    <button class="button" type="submit">
         Apply Filters
     </button>
 
@@ -72,39 +100,36 @@
 
 <hr>
 
-    {{ range . }}
-    <div class="card">
+{{ range .Artists }}
 
-        <img src="{{ .Image }}" alt="{{ .Name }}">
+<div class="card">
 
-        <h2>{{ .Name }}</h2>
+    <img src="{{ .Image }}" alt="{{ .Name }}">
 
-        <p>
-            <strong>Created:</strong>
-            {{ .CreationDate }}
-        </p>
+    <h2>{{ .Name }}</h2>
 
-        <p>
-            <strong>First Album:</strong>
-            {{ .FirstAlbum }}
-        </p>
+    <p>
+        <strong>Created:</strong>
+        {{ .CreationDate }}
+    </p>
 
-        <h3>Members</h3>
+    <p>
+        <strong>First Album:</strong>
+        {{ .FirstAlbum }}
+    </p>
 
-        <ul>
-            {{ range .Members }}
-            <li>{{ . }}</li>
-            {{ end }}
-        </ul>
+    <h3>Members</h3>
 
-        <a class="button" href="/artist?id={{ .ID }}">
-            View Details
-        </a>
+    <ul>
+        {{ range .Members }}
+        <li>{{ . }}</li>
+        {{ end }}
+    </ul>
 
-    </div>
-    {{ end }}
+    <a class="button" href="/artist?id={{ .ID }}">
+        View Details
+    </a>
 
-</main>
+</div>
 
-</body>
-</html>
+{{ end }}
