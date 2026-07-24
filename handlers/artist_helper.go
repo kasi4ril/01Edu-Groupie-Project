@@ -90,10 +90,32 @@ func loadArtistData(id int) (models.ArtistPage, error) {
 		}
 	}
 
-	return models.ArtistPage{
-		Artist:   artist,
-		Location: location,
-		Date:     date,
-		Relation: relation,
-	}, nil
+	// --------------------------------------------
+// Convert locations into map coordinates
+// --------------------------------------------
+
+var coordinates []models.Coordinate
+
+for _, place := range location.Locations {
+
+	
+    coordinate, err := services.GetCoordinate(place)
+    if err != nil {
+        log.Printf("Unable to geocode %q: %v", place, err)
+        continue
+    }
+
+    coordinates = append(coordinates, coordinate)
+}
+log.Println("========== COORDINATES ==========")
+log.Printf("%+v\n", coordinates)
+
+
+return models.ArtistPage{
+	Artist:      artist,
+	Location:    location,
+	Date:        date,
+	Relation:    relation,
+	Coordinates: coordinates,
+}, nil
 }

@@ -3,13 +3,17 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Artist.Name }}</title>
 
-<title>{{ .Artist.Name }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 
-<link rel="stylesheet" href="/static/css/style.css">
+    <!-- Leaflet CSS -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 </head>
 
@@ -17,100 +21,126 @@
 
 <header>
 
-<h1>{{ .Artist.Name }}</h1>
+    <h1>{{ .Artist.Name }}</h1>
 
 </header>
 
 <main class="container">
 
-<img src="{{ .Artist.Image }}" alt="{{ .Artist.Name }}">
+    <img src="{{ .Artist.Image }}" alt="{{ .Artist.Name }}">
 
-<p>
+    <p>
+        <strong>Creation Year:</strong>
+        {{ .Artist.CreationDate }}
+    </p>
 
-<strong>Creation Year:</strong>
+    <p>
+        <strong>First Album:</strong>
+        {{ .Artist.FirstAlbum }}
+    </p>
 
-{{ .Artist.CreationDate }}
+    <h2>Members</h2>
 
-</p>
+    <ul>
+        {{ range .Artist.Members }}
+        <li>{{ . }}</li>
+        {{ end }}
+    </ul>
 
-<p>
+    <h2>Locations</h2>
 
-<strong>First Album:</strong>
+    <ul>
+        {{ range .Location.Locations }}
+        <li>{{ . }}</li>
+        {{ end }}
+    </ul>
 
-{{ .Artist.FirstAlbum }}
+    <h2>Concert Dates</h2>
 
-</p>
+    <ul>
+        {{ range .Date.Dates }}
+        <li>{{ . }}</li>
+        {{ end }}
+    </ul>
 
-<h2>Members</h2>
+    <h2>Relations</h2>
 
-<ul>
+    <ul>
+        {{ range $location, $dates := .Relation.DatesLocations }}
+        <li>
 
-{{ range .Artist.Members }}
+            <strong>{{ $location }}</strong>
 
-<li>{{ . }}</li>
+            <ul>
+                {{ range $dates }}
+                <li>{{ . }}</li>
+                {{ end }}
+            </ul>
 
-{{ end }}
+        </li>
+        {{ end }}
+    </ul>
 
-</ul>
+    <!-- ===================== -->
+    <!-- Concert Map -->
+    <!-- ===================== -->
 
-<h2>Locations</h2>
+    <h2>Concert Locations Map</h2>
 
-<ul>
+    <p>Coordinates count: {{ len .Coordinates }}</p>
 
-{{ range .Location.Locations }}
+    <div id="map"></div>
 
-<li>{{ . }}</li>
+    <p>
 
-{{ end }}
+        <a class="button" href="/">← Back Home</a>
 
-</ul>
-
-<h2>Concert Dates</h2>
-
-<ul>
-
-{{ range .Date.Dates }}
-
-<li>{{ . }}</li>
-
-{{ end }}
-
-</ul>
-
-<h2>Relations</h2>
-
-<ul>
-
-{{ range $location, $dates := .Relation.DatesLocations }}
-
-<li>
-
-<strong>{{ $location }}</strong>
-
-<ul>
-
-{{ range $dates }}
-
-<li>{{ . }}</li>
-
-{{ end }}
-
-</ul>
-
-</li>
-
-{{ end }}
-
-</ul>
-
-<p>
-
-<a class="button" href="/">← Back Home</a>
-
-</p>
+    </p>
 
 </main>
 
-</body>
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-</html>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Create the map
+    const map = L.map("map").setView([20, 0], 2);
+
+    // Load OpenStreetMap tiles
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            attribution: "&copy; OpenStreetMap contributors",
+            maxZoom: 19,
+        }
+    ).addTo(map);
+
+    const bounds = [];
+
+    {{ range .Coordinates }}
+
+    const marker = L.marker([
+        {{ .Latitude }},
+        {{ .Longitude }}
+    ]).addTo(map);
+
+    marker.bindPopup("<strong>{{ .Name }}</strong>");
+
+    bounds.push([
+        {{ .Latitude }},
+        {{ .Longitude }}
+    ]);
+
+    {{ end }}
+
+    // Automatically zoom to show every marker
+    if (bounds.length > 0) {
+        map.fitBounds(bounds, {
+            padding: [50, 50],
+        });
+    }
+
+});
+</script>
