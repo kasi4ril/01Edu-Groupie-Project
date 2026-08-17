@@ -16,6 +16,38 @@
 
    <form action="/" method="GET" class="filter-form">
 
+    <fieldset class="search-fieldset">
+
+    <legend>
+        <strong>Search</strong>
+    </legend>
+
+    <div class="search-container">
+
+        <input
+            type="text"
+            id="search"
+            name="search"
+            value="{{ .Search }}"
+            placeholder="Search artist, member, location..."
+            autocomplete="off"
+        >
+
+        <button type="submit">
+            Search
+        </button>
+
+        <div
+            id="search-suggestions"
+            class="search-suggestions"
+        ></div>
+
+    </div>
+
+</fieldset>
+
+<br>
+
     <fieldset>
     <legend><strong>Creation Year</strong></legend>
 
@@ -131,5 +163,169 @@
     </a>
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput = document.getElementById("search");
+    const suggestionsBox =
+        document.getElementById("search-suggestions");
+
+    if (!searchInput || !suggestionsBox) {
+        return;
+    }
+
+    searchInput.addEventListener("input", function () {
+
+        const query = searchInput.value.trim().toLowerCase();
+
+        suggestionsBox.innerHTML = "";
+
+        if (query === "") {
+            suggestionsBox.style.display = "none";
+            return;
+        }
+
+        const suggestions = [];
+
+        {{ range .Artists }}
+
+        // Artist name
+        if (
+            "{{ .Name }}".
+            toLowerCase().
+            includes(query)
+        ) {
+            suggestions.push({
+                value: "{{ .Name }}",
+                type: "artist/band"
+            });
+        }
+
+        // Members
+        {{ range .Members }}
+
+        if (
+            "{{ . }}".
+            toLowerCase().
+            includes(query)
+        ) {
+            suggestions.push({
+                value: "{{ . }}",
+                type: "member"
+            });
+        }
+
+        {{ end }}
+
+        // Creation year
+        if (
+            "{{ .CreationDate }}".
+            includes(query)
+        ) {
+            suggestions.push({
+                value: "{{ .CreationDate }}",
+                type: "creation date"
+            });
+        }
+
+        // First album
+        if (
+            "{{ .FirstAlbum }}".
+            toLowerCase().
+            includes(query)
+        ) {
+            suggestions.push({
+                value: "{{ .FirstAlbum }}",
+                type: "first album"
+            });
+        }
+
+        {{ end }}
+
+        {{ range .Locations }}
+
+        if (
+            "{{ . }}".
+            toLowerCase().
+            includes(query)
+        ) {
+            suggestions.push({
+                value: "{{ . }}",
+                type: "location"
+            });
+        }
+
+        {{ end }}
+
+        // Remove duplicate suggestions.
+        const uniqueSuggestions = [];
+
+        suggestions.forEach(function (suggestion) {
+
+            const exists = uniqueSuggestions.some(function (item) {
+                return (
+                    item.value.toLowerCase() ===
+                    suggestion.value.toLowerCase() &&
+                    item.type === suggestion.type
+                );
+            });
+
+            if (!exists) {
+                uniqueSuggestions.push(suggestion);
+            }
+
+        });
+
+        // Display suggestions.
+        uniqueSuggestions
+            .slice(0, 10)
+            .forEach(function (suggestion) {
+
+                const item = document.createElement("div");
+
+                item.className = "search-suggestion";
+
+                item.innerHTML =
+                    "<strong>" +
+                    suggestion.value +
+                    "</strong>" +
+                    " — " +
+                    suggestion.type;
+
+                item.addEventListener("click", function () {
+
+                    searchInput.value = suggestion.value;
+
+                    suggestionsBox.innerHTML = "";
+
+                    suggestionsBox.style.display = "none";
+
+                    searchInput.form.submit();
+
+                });
+
+                suggestionsBox.appendChild(item);
+            });
+
+        if (uniqueSuggestions.length > 0) {
+            suggestionsBox.style.display = "block";
+        } else {
+            suggestionsBox.style.display = "none";
+        }
+
+    });
+
+    // Hide suggestions when clicking outside the search area.
+    document.addEventListener("click", function (event) {
+
+        if (!event.target.closest(".search-container")) {
+            suggestionsBox.style.display = "none";
+        }
+
+    });
+
+});
+</script>
 
 {{ end }}

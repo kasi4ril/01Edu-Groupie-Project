@@ -90,3 +90,59 @@ fieldset label {
     border-radius: 10px;
     border: 1px solid #ccc;
 }
+
+/* ================================
+   SEARCH BAR
+   ================================ */
+
+.search-fieldset {
+    position: relative;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+}
+
+.search-container input[type="text"] {
+    width: 70%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.search-container button {
+    padding: 10px 16px;
+    cursor: pointer;
+}
+
+/* ================================
+   SEARCH SUGGESTIONS
+   ================================ */
+
+.search-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 70%;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.search-suggestion {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-suggestion:last-child {
+    border-bottom: none;
+}
+
+.search-suggestion:hover {
+    background: #f2f2f2;
+}

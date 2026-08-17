@@ -6,4 +6,5 @@ type HomePage struct {
 	CreationYears []int
 	AlbumYears    []int
 	Filter       Filter
+	Search string
 }

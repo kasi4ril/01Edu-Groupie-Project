@@ -107,6 +107,9 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Current Filter: %+v\n", filter)
 
+	searchQuery := r.URL.Query().Get("search")
+
+	log.Printf("Current Search: %q\n", searchQuery)
 	// ----------------------------------------
 	// Fetch data
 	// ----------------------------------------
@@ -134,6 +137,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	artists = services.FilterAlbum(artists, filter)
 	artists = services.FilterMembers(artists, filter)
 	artists = services.FilterLocations(artists, locations, filter)
+	artists = services.SearchArtists(artists, locations,searchQuery)
 
 	// ----------------------------------------
 	// Build page
@@ -145,6 +149,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		CreationYears: services.GetCreationYears(allArtists),
 		AlbumYears:    services.GetAlbumYears(allArtists),
 		Filter:        filter,
+		Search:        searchQuery,
 	}
 
 	if err := RenderTemplate(w, "index.html", page); err != nil {

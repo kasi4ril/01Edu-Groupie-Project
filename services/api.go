@@ -39,6 +39,13 @@ func GetArtists() ([]models.Artist, error) {
 		return nil, err
 	}
 
+	// TEMPORARY DEBUG CODE
+	for _, artist := range artists {
+		if artist.Name == "Genesis" {
+			fmt.Printf("Genesis members: %+v\n", artist.Members)
+		}
+	}
+
 	return artists, nil
 }
 
